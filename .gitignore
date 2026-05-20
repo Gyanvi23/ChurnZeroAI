@@ -4,4 +4,6 @@ __pycache__/
 .streamlit/
 customer_report.pdf
 *.csv
-*.xlsx
+*.xlsxvenv/
+.ipynb_checkpoints/
+.DS_Store
