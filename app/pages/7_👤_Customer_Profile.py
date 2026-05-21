@@ -2,7 +2,49 @@ import streamlit as st
 from styles import load_css
 from pdf_export import create_pdf
 
+
+from layout import show_layout
+
+st.set_page_config(
+layout="wide",
+initial_sidebar_state="collapsed"
+)
 load_css()
+show_layout()
+
+import json
+import os
+
+if os.path.exists(
+"selected_customer.json"
+):
+
+    with open(
+    "selected_customer.json",
+    "r"
+    ) as f:
+
+        cust = json.load(
+        f
+        )
+
+else:
+
+    st.warning(
+    "Please predict customer first"
+    )
+
+    st.stop()
+
+risk = float(
+
+cust.get(
+"risk_prob",
+0
+)
+
+)
+
 
 st.markdown(
 """
@@ -34,18 +76,32 @@ with left:
 with right:
 
     st.metric(
-        "Customer ID",
-        "CUST1001"
+    "Customer ID",
+
+    cust.get(
+    "name",
+    "CUST"
+    )
     )
 
     st.metric(
-        "Segment",
-        "High Risk"
+
+    "Segment",
+
+    "High Risk"
+
+    if risk>0.7
+
+    else
+
+    "Retained"
     )
 
     st.metric(
-        "Churn Probability",
-        "82%"
+
+    "Churn Probability",
+
+    f"{round(risk*100)}%"
     )
 
 st.divider()
@@ -55,30 +111,86 @@ st.subheader(
 )
 
 st.info(
+
+f"""
+
+Customer :
+
+{cust.get(
+"name",
+"CUST1001"
+)}
+
+Age :
+
+{cust.get(
+'age',
+0
+)}
+
+Balance :
+
+₹{cust.get(
+'balance',
+0
+)}
+
+Salary :
+
+₹{cust.get(
+'salary',
+0
+)}
+
+Products :
+
+{cust.get(
+'products',
+0
+)}
+
+Tenure :
+
+{cust.get(
+'tenure',
+0
+)}
+
+Status :
+
+{'High Risk' if risk>0.7 else 'Retained'}
+
 """
-Name : Rahul Sharma
 
-Account Age : 3 Years
-
-Balance : ₹1,50,000
-
-Transactions : 20
-
-Status : High Risk
-"""
 )
-
 st.divider()
 
 st.subheader(
 "Recommended Action"
 )
 
-st.error(
-"""
-Assign Relationship Manager
+if risk>0.8:
 
-Priority Contact Required
+    action="Assign Relationship Manager"
+
+elif risk>0.5:
+
+    action="Offer Cashback"
+
+else:
+
+    action="No Action Needed"
+
+st.error(
+
+f"""
+
+{action}
+
+Risk :
+
+{round(risk*100)}%
+
 """
 )
 st.divider()
@@ -91,13 +203,13 @@ timeline = [
 
 "2023 → Account Created",
 
-"2024 → High Transactions",
+f"Tenure → {cust.get('tenure',0)} Years",
 
-"Jan 2025 → Activity Reduced",
+f"Products → {cust.get('products',0)}",
 
-"Mar 2025 → Silent Behaviour",
+f"Balance → ₹{cust.get('balance',0)}",
 
-"May 2025 → High Churn Risk"
+f"Risk → {round(risk*100)}%"
 
 ]
 
@@ -109,17 +221,29 @@ for event in timeline:
 
 create_pdf(
 
-"CUST1001",
+cust.get(
+"name",
+"CUST1001"
+),
 
-"High Risk",
+"High Risk"
+if risk>0.7
+else
+"Retained",
 
-"82%",
+f"{round(risk*100)}%",
 
-150000,
+cust.get(
+"balance",
+0
+),
 
-20,
+cust.get(
+"products",
+0
+),
 
-"Assign Relationship Manager"
+action
 
 )
 

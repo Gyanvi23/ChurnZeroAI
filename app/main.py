@@ -1,5 +1,11 @@
 import streamlit as st
+from layout import show_layout
 
-st.switch_page(
-    "pages/0_🔐_Login.py"
+show_layout()
+
+
+st.set_page_config(
+layout="wide",
+initial_sidebar_state="collapsed"
 )
+

@@ -1,4 +1,7 @@
 import streamlit as st
+from layout import show_layout
+
+show_layout()
 st.set_page_config(
 initial_sidebar_state=
 "collapsed"
@@ -114,4 +117,17 @@ if st.button(
 
     st.switch_page(
     "pages/1_🏠_Home.py"
+    )
+    st.markdown(
+    """
+
+    < div class="ai">
+
+    🤖
+
+    </>
+
+    """,
+
+    unsafe_allow_html=True
     )

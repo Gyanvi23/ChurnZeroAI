@@ -1,76 +1,146 @@
 import streamlit as st
+import pandas as pd
+import os
+import time
+
 from styles import load_css
+from layout import show_layout
+
+st.set_page_config(
+layout="wide",
+initial_sidebar_state="collapsed"
+)
+
+# THEME
+
 if "dark_mode" not in st.session_state:
 
     st.session_state.dark_mode = True
 
 theme = st.toggle(
-
 "Dark Mode",
-
-value=
-st.session_state.dark_mode
-
+value=st.session_state.dark_mode
 )
 
 st.session_state.dark_mode = theme
 
 load_css()
+show_layout()
+
+# LOAD DATASET
+
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+csv_path = os.path.join(
+base,
+"..",
+"..",
+"data",
+"Bank Customer Churn Prediction.csv"
+)
+
+df = pd.read_csv(
+csv_path
+)
+
+# KPI CALCULATIONS
+
+total_customers = len(df)
+
+high_risk = len(
+df[df["churn"]==1]
+)
+
+retained = len(
+df[df["churn"]==0]
+)
+
+risk_percent = round(
+(high_risk/total_customers)*100
+)
+
+retention = round(
+(retained/total_customers)*100
+)
+
+saved = int(
+df["balance"].sum()*0.2
+)
+
+# DEMO
+
 demo = st.toggle(
 "Demo Mode"
 )
-st.success(
-"Demo Customer Loaded"
-)
+
+if demo:
+
+    st.success(
+    "Demo Customer Loaded"
+    )
+
 with st.spinner(
 "Launching AI Engine..."
 ):
 
-    import time
-
     time.sleep(2)
 
+# HERO
 
 st.markdown(
 """
-<div class="hero">
+
+<div class="hero-card">
 
 <h1>
+
 🚀 ChurnZero AI
+
 </h1>
 
-<h3>
-Predict • Explain • Retain
-</h3>
+<h2>
 
-AI Powered Banking Customer Intelligence Platform
+Predict • Explain • Retain
+
+</h2>
+
+<p>
+
+AI Banking Customer Intelligence Platform
+
+</p>
 
 </div>
+
 """,
 
 unsafe_allow_html=True
 )
 
+# KPI ROW
+
 a,b,c,d = st.columns(4)
 
 a.metric(
 "Customers",
-"12,540"
+total_customers
 )
 
 b.metric(
 "Risk",
-"18%"
+f"{risk_percent}%"
 )
 
 c.metric(
 "Retention",
-"82%"
+f"{retention}%"
 )
 
 d.metric(
 "Revenue Saved",
-"$2.4M"
+f"₹{saved}"
 )
 
 st.divider()
@@ -84,14 +154,14 @@ with left:
     )
 
     st.info(
-"""
+f"""
 🧠 Predict customer churn
 
-⚠ Analyze customer risk
+⚠ High Risk Customers : {high_risk}
 
-🎯 Generate retention actions
+🎯 Retained Customers : {retained}
 
-📊 Business dashboard
+📊 Dataset Driven Dashboard
 """
 )
 
@@ -101,10 +171,10 @@ with right:
 """
 System Status
 
-AI Engine: Active
+AI Engine : Active
 
-Prediction: Running
+Prediction : Running
 
-Risk Monitor: Active
+Risk Monitor : Active
 """
 )

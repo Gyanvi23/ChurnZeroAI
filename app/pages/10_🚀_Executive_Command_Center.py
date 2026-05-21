@@ -1,10 +1,53 @@
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 from styles import load_css
 from pdf_export import create_executive_pdf
-load_css()
 
+from layout import show_layout
+st.set_page_config(
+layout="wide",
+initial_sidebar_state="collapsed"
+)
+load_css()
+show_layout()
+base = os.path.dirname(
+    os.path.abspath(__file__)
+)
+
+csv_path = os.path.join(
+    base,
+    "..",
+    "..",
+    "data",
+    "Bank Customer Churn Prediction.csv"
+)
+
+df = pd.read_csv(
+    csv_path
+)
+total_customers = len(df)
+
+high_risk = len(
+    df[df["churn"]==1]
+)
+
+retained = len(
+    df[df["churn"]==0]
+)
+
+risk_prob = high_risk / total_customers
+
+retention = round(
+    retained/total_customers * 100
+)
+
+saved = int(
+    df["balance"].sum()*0.2
+)
+
+name = f"{total_customers} Customers"
 st.markdown(
 """
 <div class="hero">
@@ -28,27 +71,25 @@ unsafe_allow_html=True
 a,b,c,d = st.columns(4)
 
 a.metric(
-"Customers",
-"12,540",
-"+8%"
+"Customer",
+name
 )
 
 b.metric(
 "Churn %",
-"18%",
-"-4%"
+f"{round(risk_prob*100)}%"
 )
 
 c.metric(
 "Revenue Saved",
-"$2.4M",
-"+12%"
+f"₹{saved}"
 )
 
 d.metric(
 "Live Alerts",
-"32",
-"+5"
+
+1 if risk_prob>0.5 else 0
+
 )
 st.divider()
 
@@ -62,16 +103,28 @@ with left:
     "🔔 Live Alerts"
     )
 
-    st.error(
-    "High Risk +12%"
-    )
+    if risk_prob > 0.8:
 
-    st.warning(
-    "Silent customers rising"
-    )
+        st.error(
+    f"""
+    {name}
 
-    st.success(
-    "VIP stable"
+    High churn risk
+
+    {round(risk_prob*100)}%
+    """
+        )
+
+    elif risk_prob > 0.5:
+
+        st.warning(
+        "Medium risk customer"
+        )
+
+    else:
+
+        st.success(
+    "Customer retained"
     )
 
 with right:
@@ -81,49 +134,76 @@ with right:
     )
 
     cid = st.text_input(
-    "Customer ID"
+    "Customer ID",
+    value=name
     )
 
     if cid:
 
+        if risk_prob > 0.8:
+
+            action = "Assign RM"
+
+        elif risk_prob > 0.5:
+
+            action = "Offer Cashback"
+
+        else:
+
+            action = "No action needed"
+
         st.info(
-        f"""
-Customer : {cid}
 
-Risk : High
+f"""
+Customers :
 
-Probability : 82%
+{total_customers}
+
+Risk :
+
+{round(risk_prob*100)}%
+
+Revenue Saved :
+
+₹{saved}
 
 Action :
 
-Assign RM
-"""
-        )
+{action}
 
+"""
+)
 st.divider()
 
 # DASHBOARD
 
+retained_count = len(
+    df[df["churn"]==0]
+)
+
+high_risk_count = len(
+    df[df["churn"]==1]
+)
+
+medium_count = max(
+    total_customers
+    - retained_count
+    - high_risk_count,
+    0
+)
+
 data = pd.DataFrame({
 
 "Segment":[
-
-"VIP",
-
-"Silent",
-
+"Retained",
+"Medium Risk",
 "High Risk"
-
 ],
 
 "Count":[
-
-320,
-
-180,
-
-90
-
+retained_count,
+medium_count,
+high_risk_count
 ]
 
 })
@@ -142,18 +222,28 @@ with c1:
 
     title="Customer Segments"
     )
-    fig.update_layout(
-
-    paper_bgcolor=
-    "rgba(0,0,0,0)",
-
-    plot_bgcolor=
-    "rgba(0,0,0,0)",
-
-    font_color=
-    "white"
+    dark = st.session_state.get(
+    "dark_mode",
+    True
     )
 
+    chart_text = (
+        "white"
+    if dark
+    else "black"
+    )
+    fig.update_layout(
+
+paper_bgcolor=
+"rgba(0,0,0,0)",
+
+plot_bgcolor=
+"rgba(0,0,0,0)",
+
+font_color=
+chart_text
+
+)
     st.plotly_chart(
     fig,
     use_container_width=True
@@ -164,45 +254,15 @@ st.subheader(
 "🚨 Top Risk Customers"
 )
 
-risk = pd.DataFrame({
+risk = df[
+df["churn"]==1
+][[
+"customer_id",
+"balance",
+"age"
+]].head(10)
 
-"Customer":[
-
-"CUST1001",
-
-"CUST1002",
-
-"CUST1003",
-
-"CUST1004"
-
-],
-
-"Probability":[
-
-"92%",
-
-"87%",
-
-"82%",
-
-"79%"
-
-],
-
-"Action":[
-
-"Assign RM",
-
-"Cashback",
-
-"Priority Contact",
-
-"Retention"
-
-]
-
-})
+risk["Action"] = "Assign RM"
 
 st.dataframe(
 
@@ -219,20 +279,27 @@ st.subheader(
 m1,m2,m3 = st.columns(3)
 
 m1.metric(
+
 "Actions",
-"120"
+
+high_risk
+
 )
 
 m2.metric(
+
 "Recovered",
-"78"
+
+retained
+
 )
 
 m3.metric(
 "Success Rate",
-"82%"
-)
 
+f"{retention}%"
+
+)
 with c2:
 
     pie = px.pie(
@@ -248,10 +315,21 @@ with c2:
     paper_bgcolor=
     "rgba(0,0,0,0)",
 
+    plot_bgcolor=
+    "rgba(0,0,0,0)",
+
     font_color=
-    "white"
+    chart_text
+
     )
 
+    pie.update_traces(
+
+    textfont_color=
+    chart_text
+
+    )
+    
     st.plotly_chart(
     pie,
     use_container_width=True
@@ -265,15 +343,17 @@ st.subheader(
 
 events = [
 
-"2023 → Account Created",
+f"Total Customers : {total_customers}",
 
-"2024 → Active Customer",
+f"High Risk Customers : {high_risk}",
 
-"2025 → Activity Reduced",
+f"Retained Customers : {retained}",
 
-"2025 → High Risk",
+f"Revenue Saved : ₹{saved}",
 
-"2025 → Retention Triggered"
+f"Predicted Risk : {round(risk_prob*100)}%",
+
+f"Retention : {retention}%"
 
 ]
 
@@ -291,30 +371,43 @@ st.subheader(
 c1,c2,c3 = st.columns(3)
 
 c1.success(
-"""
+
+f"""
 Revenue Saved
 
-$2.4M
+₹{saved}
 """
 )
 
 c2.warning(
-"""
+
+f"""
 Retention Improved
 
-+18%
+{retention}%
 """
 )
 
 c3.info(
-"""
+
+f"""
 Customers Retained
 
-320
+{retained}
 """
 )
 
-create_executive_pdf()
+create_executive_pdf(
+
+customer=total_customers,
+
+risk=round(risk_prob*100),
+
+saved=saved,
+
+retention=retention
+
+)
 
 with open(
 
@@ -335,5 +428,5 @@ with open(
     )
 
 st.caption(
-"Built by Team ChurnZero AI"
+"🚀 ChurnZero AI | Predict • Explain • Retain"
 )

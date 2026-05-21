@@ -1,8 +1,52 @@
 import streamlit as st
 from styles import load_css
 
+import os
+import pandas as pd
+from layout import show_layout
+st.set_page_config(
+layout="wide",
+initial_sidebar_state="collapsed"
+)
 load_css()
+show_layout()
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
 
+csv_path = os.path.join(
+base,
+"..",
+"..",
+"data",
+"Bank Customer Churn Prediction.csv"
+)
+
+df = pd.read_csv(
+csv_path
+)
+
+total = len(df)
+
+high_risk = len(
+df[df["churn"]==1]
+)
+
+retained = len(
+df[df["churn"]==0]
+)
+
+risk_prob = high_risk / total
+
+retention = round(
+(retained/total)*100
+)
+
+balance = int(
+df["balance"].sum()
+)
+
+name = f"{total} Customers"
 st.markdown(
 """
 <div class="hero">
@@ -26,25 +70,27 @@ unsafe_allow_html=True
 a,b,c,d = st.columns(4)
 
 a.metric(
+
 "Risk Score",
-"82%"
+
+f"{round(risk_prob*100)}%"
+
 )
 
 b.metric(
 "High Risk",
-"90"
+high_risk
 )
 
 c.metric(
-"Silent",
-"180"
+"Retained",
+retained
 )
 
 d.metric(
-"VIP",
-"320"
+"Total Customers",
+total
 )
-
 st.divider()
 
 # CUSTOMER SEGMENTS
@@ -58,43 +104,59 @@ c1,c2,c3 = st.columns(3)
 with c1:
 
     st.success(
-"""
+
+f"""
 💎 VIP
 
-• High Value
+Customers :
 
-• Premium Customers
+{retained}
 
-• Low Churn Risk
+Portfolio Balance :
+
+₹{balance}
+
+Low Churn Risk
 """
+
 )
 
 with c2:
 
     st.warning(
-"""
+
+f"""
 😴 Silent
 
-• Low Activity
+Risk :
 
-• Needs Re-engagement
+{round(risk_prob*100)}%
 
-• Moderate Risk
+Needs Re-engagement
+
+Moderate Risk
+
 """
+
 )
 
 with c3:
 
     st.error(
-"""
+
+f"""
 🚨 High Risk
 
-• Churn Indicators
+Customers :
 
-• Immediate Action
+{high_risk}
 
-• Priority Customer
+Immediate Action
+
+Assign RM
+
 """
+
 )
 
 st.divider()
@@ -106,15 +168,30 @@ st.subheader(
 )
 
 st.info(
+
+f"""
+Total Customers →
+
+{total}
+
+Portfolio Balance →
+
+₹{balance}
+
+High Risk Customers →
+
+{high_risk}
+
+Retention →
+
+{retention}%
+
+Average Age →
+
+{round(df['age'].mean())}
+
 """
-Q1 → Detection
 
-Q2 → Analysis
-
-Q3 → Prevention
-
-Q4 → Retention
-"""
 )
 
 # ALERTS
@@ -123,28 +200,71 @@ st.subheader(
 "Risk Alerts"
 )
 
-st.error(
-"🚨 High Risk customers increased by 12%"
+if risk_prob > 0.5:
+
+    st.error(
+
+f"""
+🚨 Portfolio Risk High
+
+Customers At Risk :
+
+{high_risk}
+
+Risk :
+
+{round(risk_prob*100)}%
+
+"""
+
 )
 
-st.warning(
-"⚠ Silent customer activity decreased"
-)
+else:
 
-st.success(
-"✅ VIP retention stable"
+    st.success(
+
+f"""
+✅ Portfolio Stable
+
+Retention :
+
+{retention}%
+
+"""
+
 )
 
 # EXPORT
+
+report = f"""
+
+Customer :
+
+{name}
+
+Risk :
+
+{round(risk_prob*100)}%
+
+Balance :
+
+₹{balance}
+
+Retention :
+
+{retention}%
+
+"""
 
 st.download_button(
 
 "📄 Export Risk Report",
 
-"Risk Analysis Report",
+report,
 
 file_name=
 "risk_report.txt"
+
 )
 
 st.divider()

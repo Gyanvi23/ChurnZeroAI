@@ -122,13 +122,23 @@ Recovered Customers : 320
     doc.build(
     story
     )
-def create_executive_pdf():
+def create_executive_pdf(
+
+customer=None,
+
+risk=None,
+
+saved=None,
+
+retention=None
+
+):
 
     doc = SimpleDocTemplate(
         "executive_report.pdf"
     )
 
-    story = []
+    story=[]
 
     story.append(
     Paragraph(
@@ -145,61 +155,25 @@ def create_executive_pdf():
 
     story.append(
     Paragraph(
-"""
-KPIs:
-
-Total Customers : 12,540
-
-Churn Percentage : 18%
-
-Revenue Saved : $2.4M
-
-Live Alerts : 32
-"""
-    )
-    )
-
-    story.append(
-    Spacer(
-    1,
-    20
+    f"Customer : {customer}"
     )
     )
 
     story.append(
     Paragraph(
-"""
-Top Risk Customers:
-
-CUST1001 → 92%
-
-CUST1002 → 87%
-
-CUST1003 → 82%
-
-CUST1004 → 79%
-"""
-    )
-    )
-
-    story.append(
-    Spacer(
-    1,
-    20
+    f"Predicted Risk : {risk}%"
     )
     )
 
     story.append(
     Paragraph(
-"""
-Manager Performance:
+    f"Revenue Saved : ₹{saved}"
+    )
+    )
 
-Actions Triggered : 120
-
-Recovered : 78
-
-Success Rate : 82%
-"""
+    story.append(
+    Paragraph(
+    f"Retention : {retention}%"
     )
     )
 
@@ -215,11 +189,11 @@ Success Rate : 82%
 """
 Business Impact:
 
-Revenue Saved : $2.4M
+Revenue Saved
 
-Retention Improved : +18%
+Retention Improved
 
-Recovered Customers : 320
+Recovered Customers
 """
     )
     )
