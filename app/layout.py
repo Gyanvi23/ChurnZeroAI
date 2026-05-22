@@ -1,6 +1,7 @@
 
 import streamlit as st
-import streamlit.components.v1 as components
+
+from ai_bot import show_ai_bot
 def show_layout():
 
     st.markdown("""
@@ -169,134 +170,6 @@ box-shadow:
 );
 
 }
-/* AI BOT */
-
-.ai-bot{
-
-position:fixed;
-
-bottom:25px;
-
-right:25px;
-
-width:85px;
-
-height:85px;
-
-border-radius:50%;
-
-background:
-linear-gradient(
-135deg,
-#00E5FF,
-#FF3EF5
-);
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-font-size:42px;
-
-cursor:pointer;
-
-box-shadow:
-0 0 35px rgba(
-255,
-62,
-245,
-0.6
-);
-
-animation:pulse 2s infinite;
-
-z-index:9999;
-
-}
-
-.chatbox{
-
-position:fixed;
-
-bottom:120px;
-
-right:25px;
-
-width:320px;
-
-height:400px;
-
-display:none;
-
-padding:18px;
-
-border-radius:22px;
-
-background:
-rgba(
-15,
-23,
-42,
-0.96
-);
-
-backdrop-filter:blur(15px);
-
-z-index:9999;
-
-}
-
-.chat-header{
-
-font-size:22px;
-
-font-weight:700;
-
-margin-bottom:15px;
-
-}
-
-.chat-msg{
-
-padding:12px;
-
-border-radius:14px;
-
-background:
-rgba(
-255,
-255,
-255,
-0.05
-);
-
-}
-
-.chat-input{
-
-width:100%;
-
-margin-top:15px;
-
-padding:12px;
-
-border:none;
-
-border-radius:12px;
-
-background:
-rgba(
-255,
-255,
-255,
-0.08
-);
-
-color:white;
-
-}
 
 @keyframes pulse{
 
@@ -356,65 +229,6 @@ href="/Login">
 </div>
 
 </div>
-
-<!-- CHAT WINDOW -->
-
-<!-- CHAT WINDOW -->
-
-<div class="chatbox" id="chat">
-    
-    <div class="chat-header">
-        🤖 Churn AI Assistant
-    </div>
-
-    <div class="chat-msg">
-        👋 Hi! Ask me about:
-        <br><br>
-        • Risk
-        <br>
-        • Retention
-        <br>
-        • Customer Actions
-    </div>
-
-    <input
-        class="chat-input"
-        placeholder="Ask AI...">
-</div>
-
-<!-- AI BOT BUTTON -->
-
-<div class="ai-bot" id="bot-btn">
-    🤖
-</div>
-
-<script>
-
-const bot =
-document.getElementById("bot-btn");
-
-const chat =
-document.getElementById("chat");
-
-bot.addEventListener(
-"click",
-function(){
-
-if(
-chat.style.display==="block"
-){
-chat.style.display="none";
-}
-else{
-chat.style.display="block";
-}
-
-}
-
-);
-
-</script>
-
 """,
 
 unsafe_allow_html=True
@@ -489,3 +303,38 @@ unsafe_allow_html=True
             "pages/12_🧑‍💼_Manager_Action_Center.py",
             label="Manager"
             )
+    show_ai_bot()
+    st.markdown("""
+
+    <style>
+
+    iframe{
+
+    position:fixed !important;
+
+    bottom:20px !important;
+
+    right:20px !important;
+
+    top:auto !important;
+
+    left:auto !important;
+
+    width:360px !important;
+
+    height:560px !important;
+
+    z-index:999999 !important;
+
+    border:none !important;
+
+    background:transparent !important;
+
+    }
+
+    </style>
+
+    """,
+
+    unsafe_allow_html=True
+    )

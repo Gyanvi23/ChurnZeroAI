@@ -188,15 +188,24 @@ if st.button(
     st.session_state["customer"] = customer_data
 
     import json
+    import os
+
+    json_path = os.path.join(
+    base,
+    "..",
+    "..",
+    "selected_customer.json"
+    )
 
     with open(
-    "selected_customer.json",
+    json_path,
     "w"
     ) as f:
 
         json.dump(
         customer_data,
-        f
+        f,
+        indent=4
         )
     st.session_state["customer_saved"]=True
     st.success(
@@ -234,29 +243,45 @@ unsafe_allow_html=True
 
 a,b,c = st.columns(3)
 
-cust = st.session_state.get(
+import os
+import json
 
-"customer",
+if "customer" in st.session_state:
 
-{
+    cust = st.session_state[
+    "customer"
+    ]
 
-"name":"No Customer",
+else:
 
-"age":0,
+    if os.path.exists(
+    "selected_customer.json"
+    ):
 
-"balance":0,
+        with open(
+        "selected_customer.json",
+        "r"
+        ) as f:
 
-"salary":0,
+            cust = json.load(
+            f
+            )
 
-"products":0,
+    else:
 
-"tenure":0,
+        cust = {
 
-"risk_prob":0
+        "name":"No Customer",
 
-}
+        "age":0,
 
-)
+        "balance":0,
+
+        "salary":0,
+
+        "risk_prob":0
+
+        }
 risk = cust.get(
 "risk_prob",
 0
@@ -308,38 +333,3 @@ unsafe_allow_html=True
 )
 st.divider()
 
-st.subheader(
-"🤖 AI Assistant"
-)
-query = st.text_input(
-"Ask AI"
-)
-if query:
-
-    if risk>0.8:
-
-        action="Assign Relationship Manager"
-
-    elif risk>0.5:
-
-        action="Offer Cashback"
-
-    else:
-
-        action="No action needed"
-
-    st.info(
-
-f"""
-
-Suggested Action:
-
-{action}
-
-Risk:
-
-{round(risk*100)}%
-
-"""
-
-)

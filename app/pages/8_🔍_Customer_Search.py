@@ -3,12 +3,29 @@ from styles import load_css
 
 
 from layout import show_layout
+import pandas as pd
+import os
 st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
 load_css()
 show_layout()
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+csv_path = os.path.join(
+base,
+"..",
+"..",
+"data",
+"Bank Customer Churn Prediction.csv"
+)
+
+df = pd.read_csv(
+csv_path
+)
 
 st.markdown(
 """
@@ -24,10 +41,6 @@ st.markdown(
 unsafe_allow_html=True
 )
 
-cust = st.session_state.get(
-"customer",
-{}
-)
 
 customer = st.text_input(
 "Enter Customer ID"
@@ -35,57 +48,55 @@ customer = st.text_input(
 
 if customer:
 
-    risk = cust.get(
-    "risk_prob",
-    0
-    )
+    row = df[
+        df["customer_id"].astype(str)
+        ==
+        customer
+    ]
 
-    balance = cust.get(
-    "balance",
-    0
-    )
+    if len(row)==0:
 
-    age = cust.get(
-    "age",
-    0
-    )
-
-    salary = cust.get(
-    "salary",
-    0
-    )
-
-    if risk>0.8:
-
-        action = (
-        "Assign RM"
-        )
-
-        segment = (
-        "High Risk"
-        )
-
-    elif risk>0.5:
-
-        action = (
-        "Offer Cashback"
-        )
-
-        segment = (
-        "Medium Risk"
+        st.error(
+        "Customer not found"
         )
 
     else:
 
-        action = (
-        "No Action Needed"
+        row = row.iloc[0]
+
+        age = row["age"]
+
+        balance = row["balance"]
+
+        salary = row["estimated_salary"]
+
+        churn = row["churn"]
+
+        risk = (
+        0.9
+        if churn==1
+        else 0.2
         )
 
-        segment = (
-        "Retained"
-        )
+        if risk>0.8:
 
-    st.success(
+            action="Assign RM"
+
+            segment="High Risk"
+
+        elif risk>0.5:
+
+            action="Offer Cashback"
+
+            segment="Medium Risk"
+
+        else:
+
+            action="No Action Needed"
+
+            segment="Retained"
+
+        st.success(
 
 f"""
 Customer :
@@ -108,12 +119,8 @@ Segment :
 
 {segment}
 
-Probability :
-
-{round(risk*100)}%
-
 Recommendation :
 
 {action}
 """
-    )
+        )
