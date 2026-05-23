@@ -1,2 +1,6 @@
-metric,value
-accuracy,0.8555
+Metric,Value
+Accuracy,0.939
+CV Accuracy,0.935
+Precision,0.83
+Recall,0.78
+ROC-AUC,0.967
