@@ -15,7 +15,7 @@ base,
 "..",
 "..",
 "data",
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
 )
 
 df = pd.read_csv(
@@ -25,7 +25,41 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 
 st.markdown(
@@ -48,65 +82,61 @@ with left:
 
     c1 = st.selectbox(
     "Customer 1",
-    df["customer_id"]
+    df.index
     )
 
 with right:
 
     c2 = st.selectbox(
     "Customer 2",
-    df["customer_id"]
+    df.index
     )
-    row1 = df[
-    df["customer_id"] == c1
-    ].iloc[0]
+    row1 = df.iloc[c1]
 
-    row2 = df[
-    df["customer_id"] == c2
-    ].iloc[0]
+    row2 = df.iloc[c2]
     data = pd.DataFrame({
 
-"Metric":[
-"Risk",
-"Balance",
-"Salary",
-"Age",
-"Status"
-],
+    "Metric":[
+    "Risk",
+    "Income",
+    "Balance",
+    "Logins",
+    "Status"
+    ],
 
-c1:[
+    f"C{c1}":[
 
-f"{int(row1['churn']*100)}%",
+    f"{int(row1['churn']*100)}%",
 
-f"₹{row1['balance']}",
+    f"₹{row1['annual_income']}",
 
-f"₹{row1['estimated_salary']}",
+    f"₹{row1['current_balance']}",
 
-row1["age"],
+    row1["mobile_app_login_count"],
 
-"High Risk"
-if row1["churn"]==1
-else "Retained"
+    "High Risk"
+    if row1["churn"]==1
+    else "Retained"
 
-],
+    ],
 
-c2:[
+    f"C{c2}":[
 
-f"{int(row2['churn']*100)}%",
+    f"{int(row2['churn']*100)}%",
 
-f"₹{row2['balance']}",
+    f"₹{row2['annual_income']}",
 
-f"₹{row2['estimated_salary']}",
+    f"₹{row2['current_balance']}",
 
-row2["age"],
+    row2["mobile_app_login_count"],
 
-"High Risk"
-if row2["churn"]==1
-else "Retained"
+    "High Risk"
+    if row2["churn"]==1
+    else "Retained"
 
-]
+    ]
 
-})
+    })
 st.divider()
 
 st.subheader(
@@ -196,6 +226,32 @@ use_container_width=True
 
 st.subheader(
 "Comparison Results"
+)
+sat = pd.DataFrame({
+
+"Customer":[
+f"C{c1}",
+f"C{c2}"
+],
+
+"Satisfaction":[
+
+row1[
+"satisfaction_score"
+],
+
+row2[
+"satisfaction_score"
+]
+
+]
+
+})
+
+st.bar_chart(
+sat.set_index(
+"Customer"
+)
 )
 
 st.dataframe(

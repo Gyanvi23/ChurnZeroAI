@@ -11,7 +11,41 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 base = os.path.dirname(
 os.path.abspath(__file__)
@@ -22,8 +56,36 @@ base,
 "..",
 "..",
 "data",
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
 )
+import json
+
+selected_risk = 0
+
+json_path = os.path.join(
+base,
+"..",
+"..",
+"selected_customer.json"
+)
+
+if os.path.exists(
+json_path
+):
+
+    with open(
+    json_path,
+    "r"
+    ) as f:
+
+        cust = json.load(
+        f
+        )
+
+        selected_risk = cust.get(
+        "risk_prob",
+        0
+        )
 
 df_data = pd.read_csv(
 csv_path
@@ -32,10 +94,10 @@ st.title(
 "💰 Business Impact"
 )
 
-a,b,c = st.columns(3)
+a,b,c,d = st.columns(4)
 
 saved = int(
-df_data["balance"].sum()*0.2
+df_data["annual_income"].sum()*0.05
 )
 
 retained = len(
@@ -74,13 +136,17 @@ c.metric(
 
 customers
 )
+d.metric(
+"Selected Risk",
+f"{round(selected_risk*100)}%"
+)
 
 st.divider()
 st.subheader(
 "📈 AI Business Insight"
 )
 
-if risk>70:
+if selected_risk > 0.7:
 
     st.error(
 
@@ -90,7 +156,7 @@ Revenue at risk:
 
 ₹{saved}
 
-Immediate retention action required.
+Selected customer requires retention action.
 
 """
 
@@ -252,10 +318,28 @@ Retention:
 
 Risk:
 
-{risk}%
+{round(selected_risk*100)}%
 
 """
+impact = df_data[[
 
+"mobile_app_login_count",
+
+"monthly_transaction_count",
+
+"satisfaction_score",
+
+"annual_income",
+
+"churn"
+
+]].corr()["churn"].abs()
+
+st.bar_chart(
+impact.drop(
+"churn"
+)
+)
 st.download_button(
 
 "📄 Export Business Report",

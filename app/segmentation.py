@@ -1,16 +1,15 @@
 def customer_segment(
-    balance,
-    transactions
+risk
 ):
 
-    if balance > 100000:
+    if risk > 0.8:
 
-        return "VIP"
+        return "High Risk"
 
-    elif transactions < 5:
+    elif risk > 0.5:
 
-        return "Silent"
+        return "Medium Risk"
 
     else:
 
-        return "High Risk"
+        return "Retained"

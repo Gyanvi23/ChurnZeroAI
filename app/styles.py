@@ -1,11 +1,43 @@
 import streamlit as st
 
+import streamlit as st
+
 def load_css():
 
-    dark = st.session_state.get(
+    import os
+    import json
+
+    base = os.path.dirname(
+    os.path.abspath(__file__)
+    )
+
+    theme_path = os.path.join(
+    base,
+    "theme.json"
+    )
+
+    if os.path.exists(
+    theme_path
+    ):
+
+        with open(
+        theme_path,
+        "r"
+        ) as f:
+
+            saved = json.load(f)
+
+            dark = saved.get(
+            "dark_mode",
+            True
+            )
+
+    else:
+
+        dark = st.session_state.get(
         "dark_mode",
         True
-    )
+        )
 
     if dark:
 
@@ -28,6 +60,8 @@ def load_css():
 
         text = "white"
 
+        sidebar_btn = "rgba(255,255,255,0.08)"
+
     else:
 
         bg = """
@@ -49,270 +83,204 @@ def load_css():
 
         text = "black"
 
+        sidebar_btn = "rgba(0,0,0,0.05)"
+
+    select_bg = "#1F2937" if dark else "#FFFFFF"
+    select_text = "white" if dark else "black"
+
     st.markdown(
-f"""
+        f"""
 <style>
 
 /* APP */
 
 .stApp {{
-background:{bg};
-color:{text};
+    background: {bg};
+    color: {text};
 }}
 
-[data-testid="stAppViewContainer"]{{
-background:{bg};
+[data-testid="stAppViewContainer"] {{
+    background: {bg};
 }}
 
-[data-testid="stHeader"]{{
-background:transparent;
+[data-testid="stHeader"] {{
+    background: transparent;
 }}
 
 /* SIDEBAR */
 
-section[data-testid="stSidebar"]{{
-background:{sidebar};
+section[data-testid="stSidebar"] {{
+    background: {sidebar} !important;
+}}
+
+section[data-testid="stSidebar"] > div {{
+    background: {sidebar} !important;
+}}
+
+section[data-testid="stSidebar"] * {{
+    color: {text} !important;
+}}
+
+/* SIDEBAR BUTTONS */
+
+section[data-testid="stSidebar"] button {{
+    color: {text} !important;
+    background: {sidebar_btn} !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+}}
+
+/* EXPANDERS */
+
+section[data-testid="stSidebar"] details {{
+    background: transparent !important;
+}}
+
+section[data-testid="stSidebar"] details summary p {{
+    color: {text} !important;
+    font-weight: 600 !important;
 }}
 
 /* TITLES */
 
-h1,h2,h3,h4,h5,h6,p,label{{
-color:{text} !important;
+h1,h2,h3,h4,h5,h6,p,label,span {{
+    color: {text} !important;
 }}
 
 /* BUTTON */
 
-.stButton button{{
-background:linear-gradient(
-90deg,
-#06B6D4,
-#2563EB
-) !important;
+.stButton button {{
+    background: linear-gradient(
+    90deg,
+    #06B6D4,
+    #2563EB
+    ) !important;
 
-color:white !important;
-
-border:none !important;
-
-border-radius:14px !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 14px !important;
 }}
 
-/* DOWNLOAD */
+/* DOWNLOAD BUTTON */
 
-.stDownloadButton button{{
-background:linear-gradient(
-90deg,
-#06B6D4,
-#2563EB
-) !important;
+.stDownloadButton button {{
+    background: linear-gradient(
+    90deg,
+    #06B6D4,
+    #2563EB
+    ) !important;
 
-color:white !important;
-
-border:none !important;
+    color: white !important;
+    border: none !important;
 }}
 
 /* SELECTBOX */
 
-div[data-baseweb="select"]{{
-background:#1F2937 !important;
-border-radius:12px;
+div[data-baseweb="select"] {{
+    background: {select_bg} !important;
+    border-radius: 12px;
 }}
 
-div[data-baseweb="select"] span{{
-color:white !important;
+div[data-baseweb="select"] span {{
+    color: {select_text} !important;
 }}
 
-div[role="listbox"]{{
-background:white !important;
+div[role="listbox"] {{
+    background: white !important;
 }}
 
-div[role="option"]{{
-color:black !important;
-background:white !important;
+div[role="option"] {{
+    color: black !important;
+    background: white !important;
 }}
 
-div[role="option"]:hover{{
-background:#E5E7EB !important;
+div[role="option"]:hover {{
+    background: #E5E7EB !important;
 }}
 
 /* TABLE */
 
-table{{
-background:white;
-color:black;
-}}
-.navbar{{
-
-display:flex;
-
-justify-content:center;
-
-gap:20px;
-
-padding:15px;
-
-background:rgba(
-255,
-255,
-255,
-0.05
-);
-
-backdrop-filter:blur(15px);
-
-border-radius:20px;
-
-margin-bottom:25px;
-
+table {{
+    background: white;
+    color: black;
 }}
 
-.navbtn{{
+/* NAVBAR */
 
-padding:12px 22px;
+.navbar {{
 
-border-radius:15px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 15px;
 
-background:
-linear-gradient(
-90deg,
-#06B6D4,
-#2563EB
-);
+    background: rgba(255,255,255,0.05);
 
-color:white;
+    backdrop-filter: blur(15px);
 
-font-weight:bold;
+    border-radius: 20px;
 
-text-decoration:none;
-
-}}
-.ai{{
-
-position:fixed;
-
-bottom:25px;
-
-right:25px;
-
-width:70px;
-
-height:70px;
-
-border-radius:50%;
-
-background:
-linear-gradient(
-90deg,
-#06B6D4,
-#7C3AED
-);
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-font-size:34px;
-
-box-shadow:
-0 0 25px #06B6D4;
-
-z-index:9999;
-
-}}
-.topbar{{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-padding:18px;
-
-background:rgba(
-255,
-255,
-255,
-0.05
-);
-
-backdrop-filter:
-blur(20px);
-
-border-radius:20px;
-
-margin-bottom:25px;
-
+    margin-bottom: 25px;
 }}
 
-.hero-card{{
+.navbtn {{
 
-padding:35px;
+    padding: 12px 22px;
 
-border-radius:25px;
+    border-radius: 15px;
 
-background:
-linear-gradient(
+    background: linear-gradient(
+    90deg,
+    #06B6D4,
+    #2563EB
+    );
 
-135deg,
+    color: white;
 
-rgba(37,99,235,.2),
+    font-weight: bold;
 
-rgba(124,58,237,.2)
-
-);
-
-backdrop-filter:
-blur(15px);
-
-margin-bottom:25px;
-
+    text-decoration: none;
 }}
-.ai-float{{
 
-position:fixed;
+/* TOPBAR */
 
-bottom:18px;
+.topbar {{
 
-right:18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-width:52px;
+    padding: 18px;
 
-height:52px;
+    background: rgba(255,255,255,0.05);
 
-border-radius:50%;
+    backdrop-filter: blur(20px);
 
-background:
+    border-radius: 20px;
 
-linear-gradient(
-
-90deg,
-
-#06B6D4,
-
-#2563EB
-
-);
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-font-size:20px;
-
-box-shadow:
-
-0 0 15px
-
-#2563EB;
-
-
-
+    margin-bottom: 25px;
 }}
+
+/* HERO CARD */
+
+.hero-card {{
+
+    padding: 35px;
+
+    border-radius: 25px;
+
+    background: linear-gradient(
+    135deg,
+    rgba(37,99,235,.2),
+    rgba(124,58,237,.2)
+    );
+
+    backdrop-filter: blur(15px);
+
+    margin-bottom: 25px;
+}}
+
 </style>
 """,
-unsafe_allow_html=True
-)
+        unsafe_allow_html=True
+    )

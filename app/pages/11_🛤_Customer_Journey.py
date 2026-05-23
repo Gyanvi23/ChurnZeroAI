@@ -1,21 +1,56 @@
 import streamlit as st
 from styles import load_css
-
+import os
 
 from layout import show_layout
 st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 cust = st.session_state.get(
 "customer",
 {
 "name":"No Customer Selected",
 "age":0,
-"balance":0,
-"salary":0,
+"income":0,
+"logins":0,
+"complaints":0,
 "risk_prob":0
 }
 )
@@ -25,13 +60,18 @@ risk_prob = cust.get(
 0
 )
 
-balance = cust.get(
-"balance",
+income = cust.get(
+"income",
 0
 )
 
-salary = cust.get(
-"salary",
+logins = cust.get(
+"logins",
+0
+)
+
+complaints = cust.get(
+"complaints",
 0
 )
 
@@ -54,15 +94,11 @@ f"🆔 Customer → {name}",
 
 f"🎂 Age → {cust.get('age',0)}",
 
-f"📈 Tenure → {cust.get('tenure',0)} years",
+f"💰 Annual Income → ₹{income}",
 
-f"💰 Balance → ₹{balance}",
+f"📱 Digital Logins → {logins}",
 
-f"🛒 Products → {cust.get('products',0)}",
-
-f"💵 Salary → ₹{salary}",
-
-f"👤 Active Member → {cust.get('active_member',0)}",
+f"📞 Complaints → {complaints}",
 
 f"⚠ Risk → {round(risk_prob*100)}%"
 
@@ -113,6 +149,10 @@ Customer retained
 st.progress(
 retention/100
 )
+st.metric(
+"Journey Health",
+f"{retention}%"
+)
 
 st.caption(
 f"Retention Score : {retention}%"
@@ -125,11 +165,11 @@ Age : {cust.get('age',0)}
 
 Tenure : {cust.get('tenure',0)}
 
-Balance : ₹{balance}
+Income : ₹{income}
 
-Products : {cust.get('products',0)}
+Digital Logins : {logins}
 
-Salary : ₹{salary}
+Complaints : {complaints}
 
 Risk : {round(risk_prob*100)}%
 

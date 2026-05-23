@@ -40,9 +40,11 @@ def show_ai_bot():
 
         "name":"No Customer",
 
-        "balance":0,
+        "income":0,
 
-        "salary":0,
+        "logins":0,
+
+        "complaints":0,
 
         "risk_prob":0
 
@@ -53,13 +55,18 @@ def show_ai_bot():
     0
     )
 
-    balance = cust.get(
-    "balance",
+    income = cust.get(
+    "income",
     0
     )
 
-    salary = cust.get(
-    "salary",
+    logins = cust.get(
+    "logins",
+    0
+    )
+
+    complaints = cust.get(
+    "complaints",
     0
     )
 
@@ -628,14 +635,14 @@ ans=
 else if(text.includes("Customer")){
 
 ans=
-"👤 Customer: CUSTOMER_PLACEHOLDER | Salary: ₹SALARY_PLACEHOLDER";
+"👤 Customer: CUSTOMER_PLACEHOLDER | Income: ₹INCOME_PLACEHOLDER";
 
 }
 
 else if(text.includes("Revenue")){
 
 ans=
-"💰 Revenue impact based on customer balance: ₹REVENUE_PLACEHOLDER";
+"💰 Revenue insight based on customer income: ₹REVENUE_PLACEHOLDER";
 
 }
 
@@ -687,23 +694,22 @@ ans=
 }
 
 else if(
-val.includes("balance")
+val.includes("income")
 ){
 
 ans=
-"Balance: ₹BALANCE_PLACEHOLDER";
+"Income: ₹INCOME_PLACEHOLDER";
 
 }
 
 else if(
-val.includes("salary")
+val.includes("logins")
 ){
 
 ans=
-"Salary: ₹SALARY_PLACEHOLDER";
+"Digital Logins: LOGINS_PLACEHOLDER";
 
 }
-
 else if(
 val.includes("retention")
 ){
@@ -716,7 +722,7 @@ ans=
 else{
 
 ans=
-"Try: risk, customer, balance, salary";
+"Try: risk, customer, income, logins";
 
 }
 
@@ -749,13 +755,13 @@ document.getElementById(
     )
 
     html_code = html_code.replace(
-    "BALANCE_PLACEHOLDER",
-    str(balance)
+    "INCOME_PLACEHOLDER",
+    str(income)
     )
 
     html_code = html_code.replace(
-    "SALARY_PLACEHOLDER",
-    str(salary)
+    "LOGINS_PLACEHOLDER",
+    str(logins)
     )
 
     html_code = html_code.replace(
@@ -763,7 +769,7 @@ document.getElementById(
     str(retention)
     )
     saved = int(
-    balance*0.2
+    income*0.05
     )
 
     html_code = html_code.replace(

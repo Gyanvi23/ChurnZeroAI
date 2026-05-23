@@ -9,7 +9,41 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 base = os.path.dirname(
 os.path.abspath(__file__)
@@ -20,7 +54,7 @@ base,
 "..",
 "..",
 "data",
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
 )
 
 df = pd.read_csv(
@@ -41,17 +75,17 @@ st.markdown(
 unsafe_allow_html=True
 )
 
-
-customer = st.text_input(
-"Enter Customer ID"
+customer = st.number_input(
+"Enter Customer Index",
+min_value=0,
+max_value=len(df)-1,
+step=1
 )
 
 if customer:
 
-    row = df[
-        df["customer_id"].astype(str)
-        ==
-        customer
+    row = df.iloc[
+    int(customer)
     ]
 
     if len(row)==0:
@@ -62,22 +96,32 @@ if customer:
 
     else:
 
-        row = row.iloc[0]
+        
 
         age = row["age"]
 
-        balance = row["balance"]
+        income = row["annual_income"]
 
-        salary = row["estimated_salary"]
+        balance = row["current_balance"]
+
+        logins = row[
+        "mobile_app_login_count"
+        ]
 
         churn = row["churn"]
 
-        risk = (
-        0.9
-        if churn==1
-        else 0.2
+        risk = round(
+        float(
+        row["churn_probability"]
         )
-
+        if "churn_probability" in df.columns
+        else (
+        0.9
+        if churn == 1
+        else 0.2
+        ),
+        2
+        )
         if risk>0.8:
 
             action="Assign RM"
@@ -96,31 +140,39 @@ if customer:
 
             segment="Retained"
 
-        st.success(
+            st.success(
 
-f"""
-Customer :
+            f"""
+            Customer :
 
-{customer}
+            {customer}
 
-Age :
+            Age :
 
-{age}
+            {age}
 
-Balance :
+            Balance :
 
-₹{balance}
+            ₹{balance}
 
-Salary :
+            Income :
 
-₹{salary}
+            ₹{income}
 
-Segment :
+            Digital Logins :
 
-{segment}
+            {logins}
 
-Recommendation :
+            Segment :
 
-{action}
-"""
-        )
+            {segment}
+
+            Recommendation :
+
+            {action}
+            """
+            )
+            st.metric(
+            "Risk Score",
+            f"{round(risk*100)}%"
+            )

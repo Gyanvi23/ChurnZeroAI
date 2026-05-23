@@ -9,7 +9,41 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 
 import json
@@ -86,14 +120,14 @@ with right:
 
     st.metric(
 
-    "Segment",
+    "Prediction",
 
-    "High Risk"
-
-    if risk>0.7
-
+    "Churn"
+    if cust.get(
+    "prediction",
+    0
+    )==1
     else
-
     "Retained"
     )
 
@@ -128,34 +162,33 @@ Age :
 0
 )}
 
-Balance :
+Income :
 
 ₹{cust.get(
-'balance',
+'income',
 0
 )}
 
-Salary :
-
-₹{cust.get(
-'salary',
-0
-)}
-
-Products :
+Digital Logins :
 
 {cust.get(
-'products',
+'logins',
 0
 )}
 
-Tenure :
+Complaints :
 
 {cust.get(
-'tenure',
+'complaints',
 0
 )}
 
+Prediction :
+
+{'Churn' if cust.get(
+'prediction',
+0
+)==1 else 'Retained'}
 Status :
 
 {'High Risk' if risk>0.7 else 'Retained'}
@@ -201,13 +234,13 @@ st.subheader(
 
 timeline = [
 
-"2023 → Account Created",
+"2023 → Customer Onboarded",
 
-f"Tenure → {cust.get('tenure',0)} Years",
+f"Income → ₹{cust.get('income',0)}",
 
-f"Products → {cust.get('products',0)}",
+f"Digital Logins → {cust.get('logins',0)}",
 
-f"Balance → ₹{cust.get('balance',0)}",
+f"Complaints → {cust.get('complaints',0)}",
 
 f"Risk → {round(risk*100)}%"
 
@@ -234,12 +267,12 @@ else
 f"{round(risk*100)}%",
 
 cust.get(
-"balance",
+"income",
 0
 ),
 
 cust.get(
-"products",
+"logins",
 0
 ),
 

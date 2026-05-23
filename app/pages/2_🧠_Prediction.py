@@ -5,10 +5,41 @@ import joblib
 import pandas as pd
 import os
 from layout import show_layout
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
 st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
 load_css()
 
 
@@ -25,7 +56,7 @@ base,
 
 "data",
 
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
 
 )
 
@@ -53,76 +84,60 @@ show_layout()
 st.subheader(
     "🔮 Predict Customer Churn"
 )
-customer_id = st.selectbox(
-
+customer_index = st.selectbox(
 "Select Customer",
-
-df["customer_id"]
-
-)
-row = df[
-df["customer_id"]==customer_id
-].iloc[0]
-credit_score = st.number_input(
-
-"Credit Score",
-
-value=int(
-row["credit_score"]
+df.index
 )
 
-)
-
+row = df.iloc[customer_index]
 age = st.number_input(
 "Age",
 value=int(row["age"])
 )
 
+annual_income = st.number_input(
+"Annual Income",
+value=float(row["annual_income"])
+)
+
 tenure = st.number_input(
-"Tenure",
-value=int(row["tenure"])
+"Tenure Months",
+value=int(row["tenure_months"])
+)
+
+products = st.number_input(
+"Number Of Products",
+value=int(row["number_of_products"])
 )
 
 balance = st.number_input(
-"Balance",
-value=float(row["balance"])
+"Current Balance",
+value=float(row["current_balance"])
 )
 
-products_number = st.number_input(
-"Products",
-value=int(
-row["products_number"]
-)
+monthly_transaction_count = st.number_input(
+"Monthly Transaction Count",
+value=int(row["monthly_transaction_count"])
 )
 
-estimated_salary = st.number_input(
-"Salary",
-value=float(
-row["estimated_salary"]
-)
-)
-credit_card = st.selectbox(
-
-"Credit Card",
-
-[0,1],
-
-index=int(
-row["credit_card"]
+credit_card_spend = st.number_input(
+"Credit Card Spend",
+value=float(row["credit_card_spend"])
 )
 
+loan_outstanding = st.number_input(
+"Loan Outstanding",
+value=float(row["loan_outstanding_amount"])
 )
 
-active_member = st.selectbox(
-
-"Active Member",
-
-[0,1],
-
-index=int(
-row["active_member"]
+mobile_logins = st.number_input(
+"Mobile App Logins",
+value=int(row["mobile_app_login_count"])
 )
 
+satisfaction = st.number_input(
+"Satisfaction Score",
+value=float(row["satisfaction_score"])
 )
 # SAVE CUSTOMER IMMEDIATELY
 
@@ -133,28 +148,28 @@ if st.button(
 
     sample = pd.DataFrame({
 
-        "credit_score":[credit_score],
+    "age":[age],
 
-        "country":[0],
+    "annual_income":[annual_income],
 
-        "gender":[0],
+    "tenure_months":[tenure],
 
-        "age":[age],
+    "number_of_products":[products],
 
-        "tenure":[tenure],
+    "current_balance":[balance],
 
-        "balance":[balance],
+    "monthly_transaction_count":[monthly_transaction_count],
 
-        "products_number":[products_number],
+    "credit_card_spend":[credit_card_spend],
 
-        "credit_card":[credit_card],
+    "loan_outstanding_amount":[loan_outstanding],
 
-        "active_member":[active_member],
+    "mobile_app_login_count":[mobile_logins],
 
-        "estimated_salary":[estimated_salary]
+    "satisfaction_score":[satisfaction]
 
     })
-
+    
     prediction = model.predict(
         sample
     )[0]
@@ -165,26 +180,27 @@ if st.button(
 
     customer_data = {
 
-    "name": str(customer_id),
+    "name":str(customer_index),
 
-    "age": int(age),
+    "age":int(age),
 
-    "balance": float(balance),
+    "income":float(
+    annual_income
+    ),
 
-    "salary": float(estimated_salary),
+    "balance":float(
+    balance
+    ),
 
-    "products": int(products_number),
+    "products":int(
+    products
+    ),
 
-    "tenure": int(tenure),
+    "risk_prob":float(prob),
 
-    "active_member": int(active_member),
-
-    "risk_prob": float(prob),
-
-    "prediction": int(prediction)
+    "prediction":int(prediction)
 
     }
-
     st.session_state["customer"] = customer_data
 
     import json
@@ -213,7 +229,7 @@ if st.button(
     f"""
     Saved customer:
 
-    {customer_id}
+    {customer_index}
 
     Risk:
 
@@ -271,17 +287,19 @@ else:
 
         cust = {
 
-        "name":"No Customer",
+    "name":"No Customer",
 
-        "age":0,
+    "age":0,
 
-        "balance":0,
+    "income":0,
 
-        "salary":0,
+    "logins":0,
 
-        "risk_prob":0
+    "complaints":0,
 
-        }
+    "risk_prob":0
+
+    }
 risk = cust.get(
 "risk_prob",
 0

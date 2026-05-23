@@ -1,21 +1,21 @@
 def retention_plan(
-    segment
+segment
 ):
 
     if segment == "High Risk":
 
         return (
-            "Assign Relationship Manager"
+        "Assign Relationship Manager"
         )
 
-    elif segment == "Silent":
+    elif segment == "Medium Risk":
 
         return (
-            "Give Cashback Offer"
+        "Offer Cashback Campaign"
         )
 
     else:
 
         return (
-            "Start Retention Campaign"
+        "No Action Needed"
         )

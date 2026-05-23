@@ -13,19 +13,71 @@ initial_sidebar_state="collapsed"
 
 # THEME
 
-if "dark_mode" not in st.session_state:
+# THEME
 
-    st.session_state.dark_mode = True
+import json
 
-theme = st.toggle(
-"Dark Mode",
-value=st.session_state.dark_mode
+base = os.path.dirname(
+os.path.abspath(__file__)
 )
 
-st.session_state.dark_mode = theme
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
+else:
+
+    if "dark_mode" not in st.session_state:
+
+        st.session_state.dark_mode = True
+
 
 load_css()
 show_layout()
+import json
+
+risk_prob = 0
+
+if os.path.exists(
+"selected_customer.json"
+):
+
+    with open(
+    "selected_customer.json",
+    "r"
+    ) as f:
+
+        customer = json.load(
+        f
+        )
+
+        risk_prob = customer.get(
+        "risk_prob",
+        0
+        )
 
 # LOAD DATASET
 
@@ -38,7 +90,7 @@ base,
 "..",
 "..",
 "data",
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
 )
 
 df = pd.read_csv(
@@ -66,26 +118,10 @@ retention = round(
 )
 
 saved = int(
-df["balance"].sum()*0.2
+df["annual_income"].sum()*0.05
 )
 
-# DEMO
 
-demo = st.toggle(
-"Demo Mode"
-)
-
-if demo:
-
-    st.success(
-    "Demo Customer Loaded"
-    )
-
-with st.spinner(
-"Launching AI Engine..."
-):
-
-    time.sleep(2)
 
 # HERO
 
@@ -129,8 +165,8 @@ total_customers
 )
 
 b.metric(
-"Risk",
-f"{risk_percent}%"
+"Predicted Risk",
+f"{round(risk_prob*100)}%"
 )
 
 c.metric(
@@ -155,13 +191,17 @@ with left:
 
     st.info(
 f"""
-🧠 Predict customer churn
+ 🧠 Predict customer churn
 
 ⚠ High Risk Customers : {high_risk}
 
 🎯 Retained Customers : {retained}
 
-📊 Dataset Driven Dashboard
+📊 Customer Intelligence Dashboard
+
+🤖 Logistic Regression Model
+
+🎯 Cross Validation Accuracy : 93.5%
 """
 )
 
@@ -173,8 +213,8 @@ System Status
 
 AI Engine : Active
 
-Prediction : Running
+Prediction Model : Logistic Regression
 
-Risk Monitor : Active
+Customer Intelligence : Active
 """
 )

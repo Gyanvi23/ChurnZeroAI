@@ -8,7 +8,42 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 base = os.path.dirname(
 os.path.abspath(__file__)
@@ -19,7 +54,31 @@ base,
 "..",
 "..",
 "data",
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
+)
+import json
+
+selected_risk = 0
+
+if os.path.exists(
+"selected_customer.json"
+):
+
+    with open(
+    "selected_customer.json",
+    "r"
+    ) as f:
+
+        cust = json.load(f)
+
+        selected_risk = cust.get(
+        "risk_prob",
+        0
+        )
+
+st.metric(
+"Selected Customer Risk",
+f"{round(selected_risk*100)}%"
 )
 
 df = pd.read_csv(
@@ -42,8 +101,8 @@ retention = round(
 (retained/total)*100
 )
 
-balance = int(
-df["balance"].sum()
+revenue = int(
+df["annual_income"].sum()*0.05
 )
 
 name = f"{total} Customers"
@@ -92,7 +151,17 @@ d.metric(
 total
 )
 st.divider()
+if selected_risk > 0.7:
 
+    st.error(
+    "⚠ Selected customer is high risk"
+    )
+
+else:
+
+    st.success(
+    "✅ Selected customer retained"
+    )
 # CUSTOMER SEGMENTS
 
 st.subheader(
@@ -112,10 +181,9 @@ Customers :
 
 {retained}
 
-Portfolio Balance :
+Revenue Saved :
 
-₹{balance}
-
+₹{revenue}
 Low Churn Risk
 """
 
@@ -174,9 +242,9 @@ Total Customers →
 
 {total}
 
-Portfolio Balance →
+Revenue Saved →
 
-₹{balance}
+₹{revenue}
 
 High Risk Customers →
 
@@ -189,6 +257,10 @@ Retention →
 Average Age →
 
 {round(df['age'].mean())}
+
+Digital Logins →
+
+{round(df['mobile_app_login_count'].mean())}
 
 """
 
@@ -246,9 +318,9 @@ Risk :
 
 {round(risk_prob*100)}%
 
-Balance :
+Revenue Saved :
 
-₹{balance}
+₹{revenue}
 
 Retention :
 

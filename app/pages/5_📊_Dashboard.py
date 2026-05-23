@@ -13,8 +13,61 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
+import json
+
+risk_prob = 0
+
+if os.path.exists(
+"selected_customer.json"
+):
+
+    with open(
+    "selected_customer.json",
+    "r"
+    ) as f:
+
+        customer = json.load(f)
+
+        risk_prob = customer.get(
+        "risk_prob",
+        0
+        )
 
 # LOAD DATASET
 
@@ -27,7 +80,7 @@ csv_path = os.path.join(
     "..",
     "..",
     "data",
-    "Bank Customer Churn Prediction.csv"
+    "ChurnZero_dataset_v1.csv"
 )
 
 df = pd.read_csv(csv_path)
@@ -49,7 +102,7 @@ retention = round(
 )
 
 saved = int(
-    df["balance"].sum() * 0.2
+    df["annual_income"].sum() * 0.05
 )
 
 risk_percent = round(
@@ -143,11 +196,35 @@ k2.metric(
 )
 
 k3.metric(
-    "Risk",
-    f"{risk_percent}%"
+"Predicted Risk",
+f"{round(risk_prob*100)}%"
+)
+st.divider()
+st.subheader(
+"Selected Customer Status"
 )
 
-st.divider()
+if risk_prob > 0.7:
+
+    st.error(
+    f"""
+⚠ High Risk Customer
+
+Probability :
+{round(risk_prob*100)}%
+"""
+    )
+
+else:
+
+    st.success(
+    f"""
+✅ Retained Customer
+
+Probability :
+{round(risk_prob*100)}%
+"""
+    )
 
 # BUSINESS IMPACT
 
@@ -175,24 +252,79 @@ Retention
 
 c.info(
 f"""
-Recovered
+Predicted Churn
 
-{retained}
+{high_risk}
 """
 )
 
+st.subheader(
+"Top Risk Drivers"
+)
 
+risk_features = df[[
+
+"total_digital_logins",
+
+"unresolved_complaint_count",
+
+"balance_decline_percentage",
+
+"monthly_transaction_count",
+
+"mobile_app_login_count",
+
+"churn"
+
+]].corr()["churn"].abs()
+
+risk_features = risk_features.sort_values(
+ascending=False
+)
+
+fig2 = px.bar(
+
+x=risk_features.index,
+
+y=risk_features.values,
+
+title="Feature Impact on Churn"
+
+)
+
+fig2.update_layout(
+
+paper_bgcolor="rgba(0,0,0,0)",
+
+plot_bgcolor="rgba(0,0,0,0)",
+
+font_color="white"
+
+)
+
+st.plotly_chart(
+fig2,
+use_container_width=True
+)
 
 # DATASET HEATMAP
 
 heat = df[[
-    "credit_score",
+
     "age",
-    "balance",
-    "estimated_salary",
-    "tenure",
-    "products_number",
+
+    "annual_income",
+
+    "current_balance",
+
+    "monthly_transaction_count",
+
+    "mobile_app_login_count",
+
+    "satisfaction_score",
+
     "churn"
+
 ]].corr()
 
 fig = px.imshow(

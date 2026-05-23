@@ -1,15 +1,13 @@
 import streamlit as st
 from layout import show_layout
 
-show_layout()
+
 st.set_page_config(
+layout="wide",
 initial_sidebar_state=
 "collapsed"
 )
-st.set_page_config(
-    layout="wide"
-)
-
+show_layout()
 st.markdown(
 """
 <style>
@@ -114,20 +112,26 @@ if st.button(
     st.success(
     "Welcome"
     )
+    st.info(
+    f"""
+    Role :
 
+    {role}
+
+    AI Banking System Ready
+    """
+    )
     st.switch_page(
     "pages/1_🏠_Home.py"
     )
     st.markdown(
     """
-
-    < div class="ai">
-
+    <div style='
+    text-align:center;
+    font-size:70px;
+    '>
     🤖
-
-    </>
-
+    </div>
     """,
-
     unsafe_allow_html=True
     )

@@ -203,7 +203,7 @@ href="/Home">
 
 <a class="navbtn" target="_self"
 href="/Prediction">
-🧠 Prediction
+🔮 Prediction
 </a>
 
 <a class="navbtn" target="_self"
@@ -218,7 +218,7 @@ href="/Alerts">
 
 <a class="navbtn" target="_self"
 href="/Customer_Profile">
-👤 Profile
+👥 Customer
 </a>
 
 <a class="navbtn" target="_self"
@@ -237,6 +237,52 @@ unsafe_allow_html=True
     # SIDEBAR
 
     with st.sidebar:
+        import json
+        import os
+
+        base = os.path.dirname(
+        os.path.abspath(__file__)
+        )
+
+        theme_path = os.path.join(
+        base,
+        "..",
+        "theme.json"
+        )
+
+        theme_path = os.path.abspath(
+        theme_path
+        )
+
+        dark = st.sidebar.toggle(
+
+        "🌙 Dark Mode",
+
+        value=st.session_state.get(
+        "dark_mode",
+        True
+        )
+
+        )
+
+        st.session_state.dark_mode = dark
+
+        with open(
+        theme_path,
+        "w"
+        ) as f:
+
+            json.dump(
+
+            {
+
+            "dark_mode":dark
+
+            },
+
+            f
+
+            )
 
         st.title(
         "☰ Menu"

@@ -9,7 +9,41 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 base = os.path.dirname(
 os.path.abspath(__file__)
@@ -20,7 +54,7 @@ base,
 "..",
 "..",
 "data",
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
 )
 
 df = pd.read_csv(
@@ -39,8 +73,8 @@ df[df["churn"]==0]
 
 risk_prob = high_risk/total
 
-balance = int(
-df["balance"].sum()
+revenue = int(
+df["annual_income"].sum()*0.05
 )
 
 retention = round(
@@ -61,9 +95,9 @@ f"{round(risk_prob*100)}%"
 
 b.metric(
 
-"Balance",
+"Revenue Saved",
 
-f"₹{balance}"
+f"₹{revenue}"
 
 )
 
@@ -81,11 +115,18 @@ customer = st.selectbox(
 
 "Customer",
 
-df["customer_id"]
+df.index
 
 )
-
-if risk_prob > 0.8:
+selected = df.iloc[
+customer
+]
+risk = (
+0.9
+if selected["churn"]==1
+else 0.2
+)
+if risk > 0.8:
 
     actions = [
 
@@ -95,7 +136,7 @@ if risk_prob > 0.8:
 
     ]
 
-elif risk_prob > 0.5:
+elif risk > 0.5:
 
     actions = [
 
@@ -148,14 +189,22 @@ st.subheader(
 "AI Recommendation"
 )
 
-selected = df[
-df["customer_id"]==customer
-].iloc[0]
 
-if selected["churn"]==1:
+
+st.metric(
+"Selected Risk",
+f"{round(risk*100)}%"
+)
+if risk > 0.8:
 
     st.error(
     "Assign Relationship Manager immediately"
+    )
+
+elif risk > 0.5:
+
+    st.warning(
+    "Launch retention campaign"
     )
 
 else:

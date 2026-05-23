@@ -16,7 +16,7 @@ base,
 "..",
 "..",
 "data",
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
 )
 
 df = pd.read_csv(
@@ -26,7 +26,41 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 
 st.title(
@@ -36,8 +70,8 @@ high_risk = df[
 df["churn"]==1
 ]
 
-low_balance = df[
-df["balance"]<50000
+low_engagement = df[
+df["mobile_app_login_count"]<10
 ]
 
 retained = df[
@@ -45,6 +79,35 @@ df["churn"]==0
 ]
 
 alerts = []
+import json
+
+selected_risk = 0
+
+if os.path.exists(
+"selected_customer.json"
+):
+
+    with open(
+    "selected_customer.json",
+    "r"
+    ) as f:
+
+        cust = json.load(
+        f
+        )
+
+        selected_risk = cust.get(
+        "risk_prob",
+        0
+        )
+
+alerts.append(
+f"""
+🎯 Selected Customer Risk
+
+{round(selected_risk*100)}%
+"""
+)
 
 alerts.append(
 f"""
@@ -57,9 +120,9 @@ customers
 
 alerts.append(
 f"""
-🟡 Low Balance Customers
+🟡 Low Engagement Customers
 
-{len(low_balance)}
+{len(low_engagement)}
 customers
 """
 )
@@ -100,23 +163,22 @@ st.subheader(
 "AI Recommendation"
 )
 
-if len(high_risk)>50:
+if selected_risk > 0.7:
 
     st.error(
 """
-Large churn segment detected
+High risk customer detected
 
-Launch retention immediately
+Assign relationship manager
 """
 )
 
-elif len(high_risk)>20:
-
+elif selected_risk > 0.4:
     st.warning(
 """
-Medium churn risk segment
+Moderate customer risk
 
-Start campaign
+Launch retention campaign
 """
 )
 

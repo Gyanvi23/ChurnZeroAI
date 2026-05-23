@@ -9,7 +9,41 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 base = os.path.dirname(
 os.path.abspath(__file__)
@@ -20,9 +54,29 @@ base,
 "..",
 "..",
 "data",
-"Bank Customer Churn Prediction.csv"
+"ChurnZero_dataset_v1.csv"
 )
+import json
 
+selected_risk = 0
+
+if os.path.exists(
+"selected_customer.json"
+):
+
+    with open(
+    "selected_customer.json",
+    "r"
+    ) as f:
+
+        cust = json.load(
+        f
+        )
+
+        selected_risk = cust.get(
+        "risk_prob",
+        0
+        )
 df = pd.read_csv(
 csv_path
 )
@@ -43,8 +97,8 @@ retention = round(
 (retained/total)*100
 )
 
-balance = int(
-df["balance"].sum()
+revenue = int(
+df["annual_income"].sum()*0.05
 )
 
 name = f"{total} Customers"
@@ -90,10 +144,9 @@ high_risk
 )
 
 d.metric(
-"High Risk",
-high_risk
+"Selected Risk",
+f"{round(selected_risk*100)}%"
 )
-st.divider()
 
 # RETENTION ACTIONS
 
@@ -114,10 +167,9 @@ Customer :
 
 {name}
 
-Balance :
+Revenue Saved :
 
-₹{balance}
-
+₹{revenue}
 Premium Retention
 
 """
@@ -133,8 +185,7 @@ f"""
 
 Risk :
 
-{round(risk_prob*100)}%
-
+{round(selected_risk*100)}%
 Cashback
 
 Email Campaign
@@ -152,7 +203,7 @@ f"""
 
 Probability :
 
-{round(risk_prob*100)}%
+{round(selected_risk*100)}%s
 
 Assign RM
 
@@ -177,14 +228,13 @@ Customers →
 
 {total}
 
-Total Balance →
+Revenue Saved →
 
-₹{balance}
+₹{revenue}
 
-High Risk →
+Selected Risk →
 
-{high_risk}
-
+{round(selected_risk*100)}%
 Risk →
 
 {round(risk_prob*100)}%
@@ -199,14 +249,13 @@ st.subheader(
 "AI Recommendation"
 )
 
-if high_risk > total*0.5:
+if selected_risk > 0.7:
 
     st.error(
     "Assign Relationship Managers"
     )
 
-elif high_risk > total*0.2:
-
+elif selected_risk > 0.4:
     st.warning(
     "Launch Cashback Campaign"
     )
@@ -224,13 +273,13 @@ Customer :
 
 {name}
 
+Revenue Saved :
+
+₹{revenue}
+
 Risk :
 
-{round(risk_prob*100)}%
-
-Balance :
-
-₹{balance}
+{round(selected_risk*100)}%
 
 Retention :
 

@@ -8,9 +8,9 @@ segment,
 
 probability,
 
-balance,
+income,
 
-transactions,
+logins,
 
 action
 
@@ -59,13 +59,13 @@ action
 
     story.append(
     Paragraph(
-    f"Balance : ₹{balance}"
+    f"Income : ₹{income}"
     )
     )
 
     story.append(
     Paragraph(
-    f"Transactions : {transactions}"
+    f"Digital Logins : {logins}"
     )
     )
 
@@ -83,20 +83,20 @@ action
     )
 
     story.append(
-    Paragraph(
+Paragraph(
 """
 Customer Journey:
 
-2023 → Account Created
+2023 → Customer Onboarded
 
-2024 → Active Customer
+2024 → Active Banking Usage
 
-2025 → Reduced Activity
+2025 → Engagement Monitoring
 
-2025 → High Risk
+2025 → Risk Evaluation
 """
-    )
-    )
+)
+)
 
     story.append(
     Spacer(

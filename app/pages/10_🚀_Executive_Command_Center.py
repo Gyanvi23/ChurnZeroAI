@@ -10,7 +10,41 @@ st.set_page_config(
 layout="wide",
 initial_sidebar_state="collapsed"
 )
+base = os.path.dirname(
+os.path.abspath(__file__)
+)
+
+theme_path = os.path.join(
+base,
+"..",
+"..",
+"theme.json"
+)
+
+theme_path = os.path.abspath(
+theme_path
+)
+
+import json
+
+if os.path.exists(
+theme_path
+):
+
+    with open(
+    theme_path,
+    "r"
+    ) as f:
+
+        saved = json.load(f)
+
+        st.session_state.dark_mode = saved.get(
+        "dark_mode",
+        True
+        )
+
 load_css()
+
 show_layout()
 base = os.path.dirname(
     os.path.abspath(__file__)
@@ -21,7 +55,7 @@ csv_path = os.path.join(
     "..",
     "..",
     "data",
-    "Bank Customer Churn Prediction.csv"
+    "ChurnZero_dataset_v1.csv"
 )
 
 df = pd.read_csv(
@@ -44,7 +78,7 @@ retention = round(
 )
 
 saved = int(
-    df["balance"].sum()*0.2
+df["annual_income"].sum()*0.05
 )
 
 name = f"{total_customers} Customers"
@@ -69,6 +103,30 @@ unsafe_allow_html=True
 # TOP KPIs
 
 a,b,c,d = st.columns(4)
+import json
+
+pred_risk = 0
+
+if os.path.exists(
+"selected_customer.json"
+):
+
+    with open(
+    "selected_customer.json",
+    "r"
+    ) as f:
+
+        cust = json.load(f)
+
+        pred_risk = cust.get(
+        "risk_prob",
+        0
+        )
+
+st.metric(
+"Predicted Risk",
+f"{round(pred_risk*100)}%"
+)
 
 a.metric(
 "Customer",
@@ -133,9 +191,10 @@ with right:
     "🔍 Customer Search"
     )
 
-    cid = st.text_input(
-    "Customer ID",
-    value=name
+    cid = st.number_input(
+    "Customer Index",
+    0,
+    len(df)-1
     )
 
     if cid:
@@ -257,9 +316,11 @@ st.subheader(
 risk = df[
 df["churn"]==1
 ][[
-"customer_id",
-"balance",
-"age"
+"age",
+"annual_income",
+"current_balance",
+"mobile_app_login_count",
+"satisfaction_score"
 ]].head(10)
 
 risk["Action"] = "Assign RM"
@@ -395,6 +456,32 @@ Customers Retained
 
 {retained}
 """
+)
+heat = df[[
+
+"age",
+
+"annual_income",
+
+"current_balance",
+
+"monthly_transaction_count",
+
+"satisfaction_score",
+
+"churn"
+
+]].corr()
+
+fig = px.imshow(
+heat,
+text_auto=True,
+title="Executive Risk Heatmap"
+)
+
+st.plotly_chart(
+fig,
+use_container_width=True
 )
 
 create_executive_pdf(
