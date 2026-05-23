@@ -7,3 +7,5 @@ customer_report.pdf
 *.xlsxvenv/
 .ipynb_checkpoints/
 .DS_Store
+anaconda_projects/
+
