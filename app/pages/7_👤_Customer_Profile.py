@@ -172,14 +172,17 @@ Income :
 Digital Logins :
 
 {cust.get(
-'logins',
+'total_digital_logins',
+cust.get(
+'mobile_app_login_count',
 0
+)
 )}
 
 Complaints :
 
 {cust.get(
-'complaints',
+'total_complaints',
 0
 )}
 
@@ -238,9 +241,9 @@ timeline = [
 
 f"Income → ₹{cust.get('income',0)}",
 
-f"Digital Logins → {cust.get('logins',0)}",
+f"Digital Logins → {cust.get('total_digital_logins', cust.get('mobile_app_login_count',0))}",
 
-f"Complaints → {cust.get('complaints',0)}",
+f"Complaints → {cust.get('total_complaints',0)}",
 
 f"Risk → {round(risk*100)}%"
 
@@ -272,10 +275,12 @@ cust.get(
 ),
 
 cust.get(
-"logins",
+"total_digital_logins",
+cust.get(
+"mobile_app_login_count",
 0
+)
 ),
-
 action
 
 )

@@ -1,9 +1,9 @@
 {
-    "name": "8095",
-    "age": 47,
-    "income": 34486.0,
-    "balance": 6335.0,
-    "products": 5,
-    "risk_prob": 0.07161431434082079,
+    "name": "2",
+    "age": 46,
+    "income": 98955.0,
+    "balance": 5211.0,
+    "products": 6,
+    "risk_prob": 0.0014775981958183553,
     "prediction": 0
 }
